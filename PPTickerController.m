@@ -72,29 +72,32 @@ static const double kSmooth = 0.9;
 	
 	NSString *diffString = [NSString stringWithFormat:@"%+d", diff];
 	
-	NSDate *now = [NSDate date];
-	if (self.previousTime != nil)
+	if (!failed)
 	{
-		NSInteger deltaN = newCount - previousCount;
-		NSTimeInterval deltaT = [now timeIntervalSinceDate:self.previousTime];
-		double rate = (double)(deltaN * 3600) / deltaT;
-		
-		if (isnan(rateAccumulator))  rateAccumulator = rate;
-		else  rateAccumulator = kSmooth * rateAccumulator + (1.0 - kSmooth) * rate;
-		
-		// NSLog(@"DeltaN: %d, deltaT: %g, rate: %g, accum: %g", deltaN, deltaT, rate, rateAccumulator);
-		
-		if (abs(rateAccumulator) < 10)
+		NSDate *now = [NSDate date];
+		if (self.previousTime != nil)
 		{
-			diffString = [diffString stringByAppendingFormat:@", %+.1f/h", rateAccumulator];
+			NSInteger deltaN = newCount - previousCount;
+			NSTimeInterval deltaT = [now timeIntervalSinceDate:self.previousTime];
+			double rate = (double)(deltaN * 3600) / deltaT;
+			
+			if (isnan(rateAccumulator))  rateAccumulator = rate;
+			else  rateAccumulator = kSmooth * rateAccumulator + (1.0 - kSmooth) * rate;
+			
+			// NSLog(@"DeltaN: %d, deltaT: %g, rate: %g, accum: %g", deltaN, deltaT, rate, rateAccumulator);
+			
+			if (abs(rateAccumulator) < 10)
+			{
+				diffString = [diffString stringByAppendingFormat:@", %+.1f/h", rateAccumulator];
+			}
+			else
+			{
+				diffString = [diffString stringByAppendingFormat:@", %+d/h", lround(rateAccumulator)];
+			}
 		}
-		else
-		{
-			diffString = [diffString stringByAppendingFormat:@", %+d/h", lround(rateAccumulator)];
-		}
+		self.previousTime = now;
+		previousCount = newCount;
 	}
-	self.previousTime = now;
-	previousCount = newCount;
 	
 	NSString *countString = [NSString stringWithFormat:@"%d%s", newCount, failed ? "?" : ""];
 	diffString = [NSString stringWithFormat:@"  (%@)", diffString];
