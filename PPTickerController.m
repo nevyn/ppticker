@@ -99,7 +99,7 @@ static const double kSmooth = 0.9;
 		previousCount = newCount;
 	}
 	
-	NSString *countString = [NSString stringWithFormat:@"%d%s", newCount, failed ? "?" : ""];
+	NSString *countString = [NSString stringWithFormat:@"%d", newCount];
 	diffString = [NSString stringWithFormat:@"  (%@)", diffString];
 	
 	NSDictionary *diffAttr = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -108,7 +108,15 @@ static const double kSmooth = 0.9;
 							  nil];
 	
 	NSMutableAttributedString *displayString = [[[NSMutableAttributedString alloc] initWithString:countString] autorelease];
-	NSAttributedString *displayDiffString = [[[NSAttributedString alloc] initWithString:diffString attributes:diffAttr] autorelease];
+	NSAttributedString *displayDiffString = nil;
+	if (!failed)
+	{
+		displayDiffString = [[[NSAttributedString alloc] initWithString:diffString attributes:diffAttr] autorelease];
+	}
+	else
+	{
+		displayDiffString = [[[NSAttributedString alloc] initWithString:@" ?" attributes:[NSDictionary dictionaryWithObject:[NSColor redColor] forKey:NSForegroundColorAttributeName]] autorelease];
+	}
 	[displayString appendAttributedString:displayDiffString];
 	[displayString setAlignment:NSCenterTextAlignment range:NSMakeRange(0, displayString.length)];
 	[countField setObjectValue:displayString];
