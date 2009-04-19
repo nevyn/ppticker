@@ -82,7 +82,7 @@ static const double kSmooth = 0.8;
 		if (isnan(rateAccumulator))  rateAccumulator = rate;
 		else  rateAccumulator = kSmooth * rateAccumulator + (1.0 - kSmooth) * rate;
 		
-		NSLog(@"DeltaN: %d, deltaT: %g, rate: %g, accum: %g", deltaN, deltaT, rate, rateAccumulator);
+		// NSLog(@"DeltaN: %d, deltaT: %g, rate: %g, accum: %g", deltaN, deltaT, rate, rateAccumulator);
 		
 		if (abs(rateAccumulator) < 10)
 		{
