@@ -10,10 +10,12 @@
 
 static NSString *PPTickerURL = @"http://lekstuga.piratpartiet.se/membersfeed";
 static const NSTimeInterval requestInterval = 5.0;
+static const double kSmooth = 0.8;
 
 @interface PPTickerController ()
 @property (retain, nonatomic) NSURLConnection *conn;
 @property (retain, nonatomic) NSTimer *timer;
+@property (retain, nonatomic) NSDate *previousTime;
 @end
 
 
@@ -36,11 +38,11 @@ static const NSTimeInterval requestInterval = 5.0;
 }
 -(void)awakeFromNib;
 {
+	[countField setStringValue:NSLocalizedString(@"Loading...", NULL)];
 	[self makeRequest];
-	[count setStringValue:@""];
-	[countAdded setStringValue:@""];
 	[panel setFloatingPanel:YES];
 	[panel setHidesOnDeactivate:NO];
+	rateAccumulator = NAN;
 }
 
 #pragma mark Socket callbacks
@@ -55,15 +57,58 @@ static const NSTimeInterval requestInterval = 5.0;
 }
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
+	BOOL failed = NO;
 	NSString *newCountString = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 	NSInteger newCount = [newCountString integerValue];
+	if (newCount < 0)
+	{
+		newCount = previousCount;
+		failed = YES;
+	}
 	if(initialValue == 0)
 		initialValue = newCount;
 	
 	NSInteger diff = newCount - initialValue;
 	
-	[count setIntegerValue:newCount];
-	[countAdded setStringValue:[NSString stringWithFormat:@"(+%d)", diff]];
+	NSString *diffString = [NSString stringWithFormat:@"%+d", diff];
+	
+	NSDate *now = [NSDate date];
+	if (self.previousTime != nil)
+	{
+		NSInteger deltaN = newCount - previousCount;
+		NSTimeInterval deltaT = [now timeIntervalSinceDate:self.previousTime];
+		double rate = (double)(deltaN * 3600) / deltaT;
+		
+		if (isnan(rateAccumulator))  rateAccumulator = rate;
+		else  rateAccumulator = kSmooth * rateAccumulator + (1.0 - kSmooth) * rate;
+		
+		NSLog(@"DeltaN: %d, deltaT: %g, rate: %g, accum: %g", deltaN, deltaT, rate, rateAccumulator);
+		
+		if (abs(rateAccumulator) < 10)
+		{
+			diffString = [diffString stringByAppendingFormat:@", %+.1f/h", rateAccumulator];
+		}
+		else
+		{
+			diffString = [diffString stringByAppendingFormat:@", %+d/h", lround(rateAccumulator)];
+		}
+	}
+	self.previousTime = now;
+	previousCount = newCount;
+	
+	NSString *countString = [NSString stringWithFormat:@"%d%s", newCount, failed ? "?" : ""];
+	diffString = [NSString stringWithFormat:@"  (%@)", diffString];
+	
+	NSDictionary *diffAttr = [NSDictionary dictionaryWithObjectsAndKeys:
+							  [NSColor colorWithCalibratedRed:0.10 green:0.60 blue:0 alpha:1.0],NSForegroundColorAttributeName,
+							  [NSFont systemFontOfSize:11.0], NSFontAttributeName,
+							  nil];
+	
+	NSMutableAttributedString *displayString = [[[NSMutableAttributedString alloc] initWithString:countString] autorelease];
+	NSAttributedString *displayDiffString = [[[NSAttributedString alloc] initWithString:diffString attributes:diffAttr] autorelease];
+	[displayString appendAttributedString:displayDiffString];
+	[displayString setAlignment:NSCenterTextAlignment range:NSMakeRange(0, displayString.length)];
+	[countField setObjectValue:displayString];
 }
 
 #pragma mark 
@@ -77,6 +122,7 @@ static const NSTimeInterval requestInterval = 5.0;
 #pragma mark Accessors
 @synthesize conn;
 @synthesize timer;
+@synthesize previousTime;
 -(void)setTimer:(NSTimer*)timer_;
 {
 	if(timer == timer_) return;

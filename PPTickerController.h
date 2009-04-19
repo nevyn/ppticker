@@ -10,13 +10,15 @@
 
 
 @interface PPTickerController : NSObject {
-	IBOutlet NSTextField *count;
-	IBOutlet NSTextField *countAdded;
+	IBOutlet NSTextField *countField;
 	NSInteger initialValue;
 	NSURLConnection *conn;
 	NSTimer *timer;
 	IBOutlet NSProgressIndicator *spinner;
 	IBOutlet NSPanel *panel;
+	NSDate *previousTime;
+	NSInteger previousCount;
+	double rateAccumulator;
 }
 
 @end
