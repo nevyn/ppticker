@@ -10,13 +10,17 @@
 	<style type="text/css">
 		body {
   		margin-top: 1.0em;
-  		background-color: #b69be8;
+  		background-color: #8e5cbb;
 		  font-family: "helvetica"; 
-  		color: #000000;
+  		color: black;
     }
     #container {
       margin: 0 auto;
+      padding: 1em;
       width: 700px;
+      background-color: white;
+      border: 1px solid black;
+      -webkit-border-radius: 10px;
     }
 		h1 { font-size: 3.8em; color: #496417; margin-bottom: 3px; }
 		h1 .small { font-size: 0.4em; }
@@ -28,7 +32,17 @@
     .download { float: right; }
 		pre { background: #000; color: #fff; padding: 15px;}
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
+    .footer { text-align:center; padding-top:30px; font-style: italic; font-size: 14px; }
+    
+    .screenshot {
+      margin: 0 auto;
+      width: 335px;
+      height: 120px;
+      background: url(screenshot.png);
+      border: 1px solid #aaa;
+      -webkit-border-radius: 8px;
+    }
+        
 	</style>
 	
 </head>
@@ -39,56 +53,47 @@
   <div id="container">
 
     <div class="download">
-      <a href="http://github.com/nevyn/ppticker/zipball/master">
+      <a href="http://cloud.github.com/downloads/nevyn/ppticker/PPTicker_0.1.zip">
         <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/nevyn/ppticker/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
     </div>
       
     <h1><a href="http://github.com/nevyn/ppticker">ppticker</a> 
-      <span class="small">by <a href="http://github.com/nevyn">nevyn</a></small></h1>
+      <span class="small">av <a href="http://github.com/nevyn">nevyn</a></span></h1>
 
     <div class="description">
       Ett app för att följa hur många medlemmar Piratpartiet har JUST NU!
     </div>
 
-    <p><h1 id="ppticker">PPTicker</h1>
-
-<p>Ett app för att följa hur många medlemmar Piratpartiet har JUST NU!</p>
-
-<p>Ser ut såhär: <br />
-<img src="http://github.com/nevyn/ppticker/raw/4b54c0f6d2491a2d816628473a784c16daceeff9/screenshot.png" alt="Screenshot" title=""></p>
-
-<p>Datan kommer härifrån tror jag: http://lekstuga.piratpartiet.se/pp-ticker/</p>
-</p><h2>Install</h2>
-<p>1. Ladda ner: http://cloud.github.com/downloads/nevyn/ppticker/PPTicker_0.1.zip
-2. Packa upp genom att dubbelklicka
-3. Dra till Applications eller kör från där det ligger</p>
-<h2>License</h2>
-<p>gpl</p>
-<h2>Authors</h2>
-<p>Joachim Bengtsson (joachimb@gmail.com)<br/><br/>      </p>
-<h2>Contact</h2>
-<p>Joachim Bengtsson (joachimb@gmail.com)<br/>      </p>
-
-
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/nevyn/ppticker/zipball/master">zip</a> or
-      <a href="http://github.com/nevyn/ppticker/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/nevyn/ppticker</pre>
-    </p>
-      
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/nevyn/ppticker">nevyn/ppticker</a>
+    <div class="screenshot">
+      &nbsp;
     </div>
-    
-  </div>
 
+    <p>Datan kommer härifrån tror jag: http://lekstuga.piratpartiet.se/pp-ticker/</p>
+
+    <h2>Installera</h2>
+    <ul>
+      <li>1. <a href="http://cloud.github.com/downloads/nevyn/ppticker/PPTicker_0.1.zip" title="">Ladda ner</a></li>
+      <li>2. Packa upp genom att dubbelklicka</li>
+      <li>3. Dra till Applications eller kör från där det ligger</li>
+    </ul>
+
+    <h2>Källkod</h2>
+    <p>
+      Du kan tanka källkoden packat som 
+      <a href="http://github.com/nevyn/ppticker/zipball/master">zip</a> eller
+      <a href="http://github.com/nevyn/ppticker/tarball/master">tar</a>.
+    </p>
+    <p>Du kan också klona <a href="http://git-scm.com">Git</a>-repositoryt genom att skriva:
+      <pre>$ git clone git://github.com/nevyn/ppticker</pre>
+    </p>    
+  
+    <div class="footer">
+      <a href="mailto:joachimb@gmail.com">Joachim Bengtsson</a> 2009-04-19.
+    </div>
+  
+  
+  </div>
+  
   
 </body>
 </html>
