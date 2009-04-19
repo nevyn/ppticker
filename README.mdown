@@ -1,9 +1,8 @@
-PPTicker
+[PPTicker](http://nevyn.github.com/ppticker/)
 =======================
 
 Ett app för att följa hur många medlemmar Piratpartiet har JUST NU!
 
-Ser ut såhär: <br />
-![Screenshot](http://github.com/nevyn/ppticker/raw/4b54c0f6d2491a2d816628473a784c16daceeff9/screenshot.png)
+![Screenshot](http://nevyn.github.com/ppticker/screenshot.png)
 
-Datan kommer härifrån tror jag: http://lekstuga.piratpartiet.se/pp-ticker/
+Hemsida: [nevyn.github.com/ppticker](http://nevyn.github.com/ppticker/)
