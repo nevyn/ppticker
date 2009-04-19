@@ -72,31 +72,34 @@ static const double kSmooth = 0.9;
 	
 	NSString *diffString = [NSString stringWithFormat:@"%+d", diff];
 	
-	NSDate *now = [NSDate date];
-	if (self.previousTime != nil)
+	if (!failed)
 	{
-		NSInteger deltaN = newCount - previousCount;
-		NSTimeInterval deltaT = [now timeIntervalSinceDate:self.previousTime];
-		double rate = (double)(deltaN * 3600) / deltaT;
-		
-		if (isnan(rateAccumulator))  rateAccumulator = rate;
-		else  rateAccumulator = kSmooth * rateAccumulator + (1.0 - kSmooth) * rate;
-		
-		// NSLog(@"DeltaN: %d, deltaT: %g, rate: %g, accum: %g", deltaN, deltaT, rate, rateAccumulator);
-		
-		if (abs(rateAccumulator) < 10)
+		NSDate *now = [NSDate date];
+		if (self.previousTime != nil)
 		{
-			diffString = [diffString stringByAppendingFormat:@", %+.1f/h", rateAccumulator];
+			NSInteger deltaN = newCount - previousCount;
+			NSTimeInterval deltaT = [now timeIntervalSinceDate:self.previousTime];
+			double rate = (double)(deltaN * 3600) / deltaT;
+			
+			if (isnan(rateAccumulator))  rateAccumulator = rate;
+			else  rateAccumulator = kSmooth * rateAccumulator + (1.0 - kSmooth) * rate;
+			
+			// NSLog(@"DeltaN: %d, deltaT: %g, rate: %g, accum: %g", deltaN, deltaT, rate, rateAccumulator);
+			
+			if (abs(rateAccumulator) < 10)
+			{
+				diffString = [diffString stringByAppendingFormat:@", %+.1f/h", rateAccumulator];
+			}
+			else
+			{
+				diffString = [diffString stringByAppendingFormat:@", %+d/h", lround(rateAccumulator)];
+			}
 		}
-		else
-		{
-			diffString = [diffString stringByAppendingFormat:@", %+d/h", lround(rateAccumulator)];
-		}
+		self.previousTime = now;
+		previousCount = newCount;
 	}
-	self.previousTime = now;
-	previousCount = newCount;
 	
-	NSString *countString = [NSString stringWithFormat:@"%d%s", newCount, failed ? "?" : ""];
+	NSString *countString = [NSString stringWithFormat:@"%d", newCount];
 	diffString = [NSString stringWithFormat:@"  (%@)", diffString];
 	
 	NSDictionary *diffAttr = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -105,7 +108,15 @@ static const double kSmooth = 0.9;
 							  nil];
 	
 	NSMutableAttributedString *displayString = [[[NSMutableAttributedString alloc] initWithString:countString] autorelease];
-	NSAttributedString *displayDiffString = [[[NSAttributedString alloc] initWithString:diffString attributes:diffAttr] autorelease];
+	NSAttributedString *displayDiffString = nil;
+	if (!failed)
+	{
+		displayDiffString = [[[NSAttributedString alloc] initWithString:diffString attributes:diffAttr] autorelease];
+	}
+	else
+	{
+		displayDiffString = [[[NSAttributedString alloc] initWithString:@" ?" attributes:[NSDictionary dictionaryWithObject:[NSColor redColor] forKey:NSForegroundColorAttributeName]] autorelease];
+	}
 	[displayString appendAttributedString:displayDiffString];
 	[displayString setAlignment:NSCenterTextAlignment range:NSMakeRange(0, displayString.length)];
 	[countField setObjectValue:displayString];
