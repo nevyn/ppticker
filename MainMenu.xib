@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="451"/>
+			<integer value="450"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1089,14 +1089,15 @@
 				<string key="NSClassName">NSFontManager</string>
 			</object>
 			<object class="NSWindowTemplate" id="243459516">
-				<int key="NSWindowStyleMask">8215</int>
+				<int key="NSWindowStyleMask">8223</int>
 				<int key="NSWindowBacking">2</int>
 				<string key="NSWindowRect">{{1441, 913}, {195, 31}}</string>
 				<int key="NSWTFlags">1680867328</int>
 				<string key="NSWindowTitle">Piratpartiet</string>
 				<string key="NSWindowClass">NSPanel</string>
 				<nil key="NSViewClass"/>
-				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
+				<string key="NSWindowContentMaxSize">{9999, 31}</string>
+				<string key="NSWindowContentMinSize">{50, 31}</string>
 				<object class="NSView" key="NSWindowView" id="348080240">
 					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
@@ -1148,7 +1149,8 @@
 					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
-				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
+				<string key="NSMinSize">{50, 50}</string>
+				<string key="NSMaxSize">{9999, 50}</string>
 				<string key="NSFrameAutosaveName">piratmain1</string>
 			</object>
 			<object class="NSCustomObject" id="725680137">
@@ -2792,6 +2794,10 @@
 					<string>450.IBEditorWindowLastContentRect</string>
 					<string>450.IBWindowTemplateEditedContentRect</string>
 					<string>450.NSWindowTemplate.visibleAtLaunch</string>
+					<string>450.windowTemplate.hasMaxSize</string>
+					<string>450.windowTemplate.hasMinSize</string>
+					<string>450.windowTemplate.maxSize</string>
+					<string>450.windowTemplate.minSize</string>
 					<string>451.IBPluginDependency</string>
 					<string>458.IBPluginDependency</string>
 					<string>459.IBPluginDependency</string>
@@ -3011,7 +3017,11 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{473, 622}, {195, 31}}</string>
 					<string>{{473, 622}, {195, 31}}</string>
-					<boolean value="YES"/>
+					<boolean value="YES" id="5"/>
+					<reference ref="5"/>
+					<reference ref="5"/>
+					<string>{9999, 31}</string>
+					<string>{50, 31}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3105,7 +3115,7 @@
 			</object>
 		</object>
 		<int key="IBDocument.localizationMode">0</int>
-		<string key="IBDocument.LastKnownRelativeProjectPath">../PPTicker.xcodeproj</string>
+		<string key="IBDocument.LastKnownRelativeProjectPath">PPTicker.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 	</data>
 </archive>
