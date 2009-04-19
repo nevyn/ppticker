@@ -10,7 +10,7 @@
 
 static NSString *PPTickerURL = @"http://lekstuga.piratpartiet.se/membersfeed";
 static const NSTimeInterval requestInterval = 5.0;
-static const double kSmooth = 0.8;
+static const double kSmooth = 0.9;
 
 @interface PPTickerController ()
 @property (retain, nonatomic) NSURLConnection *conn;
