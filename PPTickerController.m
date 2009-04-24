@@ -7,10 +7,13 @@
 //
 
 #import "PPTickerController.h"
+#import "PPTickerStatsTracker.h"
 
 static NSString *PPTickerURL = @"http://lekstuga.piratpartiet.se/membersfeed";
-static const NSTimeInterval requestInterval = 5.0;
-static const double kSmooth = 0.9;
+#define kDesiredInterval	15.0
+#define kMinimumInterval	10.0
+#define kLatencySmooth		0.667
+
 
 @interface PPTickerController ()
 @property (retain, nonatomic) NSURLConnection *conn;
@@ -26,98 +29,139 @@ static const double kSmooth = 0.9;
 	[self.conn start];
 	[spinner startAnimation:nil];
 }
+
+
 -(void)scheduleRequest;
 {
 	[spinner stopAnimation:nil];
 	self.conn = nil;
-	self.timer = [NSTimer scheduledTimerWithTimeInterval:requestInterval
+	NSTimeInterval delay = fmax(kDesiredInterval - latency, kMinimumInterval);
+	
+	self.timer = [NSTimer scheduledTimerWithTimeInterval:delay
 												  target:self
 												selector:@selector(makeRequest)
 												userInfo:nil
 												 repeats:NO];
 }
+
+
 -(void)awakeFromNib;
 {
 	[countField setStringValue:NSLocalizedString(@"Loading...", NULL)];
 	[self makeRequest];
 	[panel setFloatingPanel:YES];
 	[panel setHidesOnDeactivate:NO];
-	rateAccumulator = NAN;
+	statsTracker = [[PPTickerStatsTracker alloc] initWithPreferencesKey:@"statistics"];
+	self.previousTime = [NSDate date];
+	latency = NAN;
+	
+#if DUMP_CSV
+	debugOut = fopen("debug.csv", "w");
+	if (debugOut != NULL)  fputs("Time,Interval (s),Count,Delta,Instantaneous rate/h,Smoothed rate/h\n", debugOut);
+#endif
 }
+
 
 #pragma mark Socket callbacks
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
 	[self scheduleRequest];
 }
+
+
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
 	[self scheduleRequest];
 	NSLog(@"Connection failed: %@", error);
 }
+
+
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
 	BOOL failed = NO;
+	BOOL firstTime = NO;
+	
 	NSString *newCountString = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 	NSInteger newCount = [newCountString integerValue];
-	if (newCount < 0)
+	
+	firstTime = isnan(latency);
+	
+	if (newCount <= 0)
 	{
 		newCount = previousCount;
 		failed = YES;
 	}
 	if(initialValue == 0)
+	{
 		initialValue = newCount;
+	}
 	
-	NSInteger diff = newCount - initialValue;
+	NSDate *now = [NSDate date];
+	NSString *diffString = nil;
 	
-	NSString *diffString = [NSString stringWithFormat:@"%+d", diff];
+	/*	Update running latency estimate.
+		This is smoothed (in a simple way) to avoid transient spikes.
+	*/
+	NSTimeInterval deltaT = [now timeIntervalSinceDate:self.previousTime];
+	if (firstTime)  latency = deltaT;
+	else  latency = latency + (deltaT - kDesiredInterval) * (1.0 - kLatencySmooth);
 	
 	if (!failed)
 	{
-		NSDate *now = [NSDate date];
-		if (self.previousTime != nil)
+		// Update growth rate estimate.
+		[statsTracker addDataPoint:newCount withTimeStamp:now];
+		
+		if (statsTracker.hasMeaningfulGrowthRate)
 		{
-			NSInteger deltaN = newCount - previousCount;
-			NSTimeInterval deltaT = [now timeIntervalSinceDate:self.previousTime];
-			double rate = (double)(deltaN * 3600) / deltaT;
-			
-			if (isnan(rateAccumulator))  rateAccumulator = rate;
-			else  rateAccumulator = kSmooth * rateAccumulator + (1.0 - kSmooth) * rate;
-			
-			// NSLog(@"DeltaN: %d, deltaT: %g, rate: %g, accum: %g", deltaN, deltaT, rate, rateAccumulator);
-			
-			if (abs(rateAccumulator) < 10)
+			double displayRate = statsTracker.growthRate;
+			if (abs(displayRate) < 10)
 			{
-				diffString = [diffString stringByAppendingFormat:@", %+.1f/h", rateAccumulator];
+				diffString = [NSString stringWithFormat:@"%+.1f/h", displayRate];
 			}
 			else
 			{
-				diffString = [diffString stringByAppendingFormat:@", %+d/h", lround(rateAccumulator)];
+				diffString = [NSString stringWithFormat:@"%+d/h", lround(displayRate)];
 			}
 		}
-		self.previousTime = now;
-		previousCount = newCount;
+		
+#if DUMP_CSV
+		// Dump CSV for graphing in spreadsheet.
+		if (debugOut != NULL && !firstTime)
+		{
+			NSInteger deltaN = newCount - previousCount;
+			double rate = (double)(deltaN * 3600) / deltaT;
+			fprintf(debugOut, "%s,%g,%u,%i,%g,%g\n", [[now description] UTF8String], deltaT, newCount, deltaN, rate, statsTracker.growthRate);
+			fflush(debugOut);
+			NSLog(@"%lu, %+g (dT: %g, latency: %g, latency update: %g)", newCount, statsTracker.growthRate, [now timeIntervalSinceDate:self.previousTime], latency, deltaT - kDesiredInterval);
+			self.previousTime = now;
+		}
+#endif
 	}
 	
+	previousCount = newCount;
+	
+	// Build styled string for display.
 	NSString *countString = [NSString stringWithFormat:@"%d", newCount];
-	diffString = [NSString stringWithFormat:@"  (%@)", diffString];
-	
-	NSDictionary *diffAttr = [NSDictionary dictionaryWithObjectsAndKeys:
-							  [NSColor colorWithCalibratedRed:0.10 green:0.60 blue:0 alpha:1.0],NSForegroundColorAttributeName,
-							  [NSFont systemFontOfSize:11.0], NSFontAttributeName,
-							  nil];
-	
 	NSMutableAttributedString *displayString = [[[NSMutableAttributedString alloc] initWithString:countString] autorelease];
 	NSAttributedString *displayDiffString = nil;
-	if (!failed)
-	{
-		displayDiffString = [[[NSAttributedString alloc] initWithString:diffString attributes:diffAttr] autorelease];
-	}
-	else
+	
+	if (failed)
 	{
 		displayDiffString = [[[NSAttributedString alloc] initWithString:@" ?" attributes:[NSDictionary dictionaryWithObject:[NSColor redColor] forKey:NSForegroundColorAttributeName]] autorelease];
 	}
-	[displayString appendAttributedString:displayDiffString];
+	else if (diffString.length != 0)
+	{
+		diffString = [NSString stringWithFormat:@"  (%@)", diffString];
+		
+		NSDictionary *diffAttr = [NSDictionary dictionaryWithObjectsAndKeys:
+								  [NSColor colorWithCalibratedRed:0.10 green:0.60 blue:0 alpha:1.0],NSForegroundColorAttributeName,
+								  [NSFont systemFontOfSize:11.0], NSFontAttributeName,
+								  nil];
+		
+		displayDiffString = [[[NSAttributedString alloc] initWithString:diffString attributes:diffAttr] autorelease];
+	}
+	
+	if (displayDiffString != nil)  [displayString appendAttributedString:displayDiffString];
 	[displayString setAlignment:NSCenterTextAlignment range:NSMakeRange(0, displayString.length)];
 	[countField setObjectValue:displayString];
 }
