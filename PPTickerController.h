@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-
 #define	DUMP_CSV	0
 
 @class PPTickerStatsTracker;

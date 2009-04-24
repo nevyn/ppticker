@@ -14,7 +14,6 @@ static NSString *PPTickerURL = @"http://lekstuga.piratpartiet.se/membersfeed";
 #define kMinimumInterval	10.0
 #define kLatencySmooth		0.667
 
-
 @interface PPTickerController ()
 @property (retain, nonatomic) NSURLConnection *conn;
 @property (retain, nonatomic) NSTimer *timer;
