@@ -9,10 +9,6 @@
 @property (readwrite, retain, nonatomic) IBOutlet NSPanel *panel;
 @property (readwrite, retain, nonatomic) IBOutlet PPTickerStatisticsManager *statisticsManager;
 
-#if DUMP_CSV
-@property FILE *debugOut;
-#endif
-
 - (void) setDisplayCount:(NSUInteger)count
 		 secondaryString:(NSString *)secondaryString
 		  secondaryColor:(NSColor *)secondaryColor
@@ -31,11 +27,6 @@
 	[self.countField setStringValue:NSLocalizedString(@"Loading...", NULL)];
 	[self.panel setFloatingPanel:YES];
 	[self.panel setHidesOnDeactivate:NO];
-	
-#if DUMP_CSV
-	self.debugOut = fopen("debug.csv", "w");
-	if (self.debugOut != NULL)  fputs("Time,Interval (s),Count,Delta,Instantaneous rate/h,Smoothed rate/h\n", debugOut);
-#endif
 }
 
 

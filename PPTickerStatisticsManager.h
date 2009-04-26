@@ -4,6 +4,8 @@
 @protocol PPTickerStatisticsManagerDelegate;
 
 
+#define DUMP_CSV 1
+
 
 @interface PPTickerStatisticsManager: NSObject
 {
@@ -21,6 +23,9 @@
 	NSTimeInterval				_latency;
 #endif
 	NSTimer						*_timer;
+#if DUMP_CSV
+	FILE						*_debugOut;
+#endif
 }
 
 @property (nonatomic, assign) IBOutlet id <PPTickerStatisticsManagerDelegate> delegate;

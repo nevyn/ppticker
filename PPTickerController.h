@@ -1,8 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import "PPTickerStatisticsManager.h"
 
-#define	DUMP_CSV	0
-
 
 @interface PPTickerController: NSObject <PPTickerStatisticsManagerDelegate>
 {
@@ -11,10 +9,6 @@
 	NSProgressIndicator			*_spinner;
 	NSPanel						*_panel;
 	PPTickerStatisticsManager	*_statisticsManager;
-	
-#if DUMP_CSV
-	FILE						*_debugOut;
-#endif
 #endif
 }
 

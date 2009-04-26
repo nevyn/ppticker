@@ -35,6 +35,11 @@ static NSString *PPTickerURL = @"http://lekstuga.piratpartiet.se/membersfeed";
 		self.statsTracker = [[[PPTickerStatsTracker alloc] initWithPreferencesKey:@"statistics"] autorelease];
 		self.previousTime = [NSDate date];
 		self.latency = NAN;
+		
+#if DUMP_CSV
+		_debugOut = fopen("debug.csv", "w");
+		if (_debugOut != NULL)  fputs("Time,Interval (s),Count,Delta,Instantaneous rate/h,Smoothed rate/h\n", _debugOut);
+#endif
 	}
 	return self;
 }
@@ -103,6 +108,16 @@ static NSString *PPTickerURL = @"http://lekstuga.piratpartiet.se/membersfeed";
 	NSTimeInterval deltaT = [now timeIntervalSinceDate:self.previousTime];
 	if (firstTime)  self.latency = deltaT;
 	else  self.latency += (deltaT - kDesiredInterval) * (1.0 - kLatencySmooth);
+	
+#if DUMP_CSV
+	if (_debugOut != NULL && !firstTime)
+	{
+		NSInteger deltaN = newCount - self.memberCount;
+		double rate = (double)(deltaN * 3600) / deltaT;
+		fprintf(_debugOut, "%s,%g,%lu,%li,%g,%g\n", [[now description] UTF8String], deltaT, (unsigned long)deltaN, (long)(newCount - self.memberCount), rate, self.statsTracker.growthRate);
+		fflush(_debugOut);
+	}
+#endif
 	
 	if (newCount <= 0)
 	{
