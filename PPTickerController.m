@@ -1,189 +1,137 @@
-//
-//  PPTickerController.m
-//  PPTicker
-//
-//  Created by Joachim Bengtsson on 2009-04-18.
-//  Copyright 2009 Third Cog Software. All rights reserved.
-//
-
 #import "PPTickerController.h"
-#import "PPTickerStatsTracker.h"
+#import "PPTickerPrettyNumbers.h"
 
-static NSString *PPTickerURL = @"http://lekstuga.piratpartiet.se/membersfeed";
-#define kDesiredInterval	15.0
-#define kMinimumInterval	10.0
-#define kLatencySmooth		0.667
 
 @interface PPTickerController ()
-@property (retain, nonatomic) NSURLConnection *conn;
-@property (retain, nonatomic) NSTimer *timer;
-@property (retain, nonatomic) NSDate *previousTime;
+
+@property (readwrite, retain, nonatomic) IBOutlet NSTextField *countField;
+@property (readwrite, retain, nonatomic) IBOutlet NSProgressIndicator *spinner;
+@property (readwrite, retain, nonatomic) IBOutlet NSPanel *panel;
+@property (readwrite, retain, nonatomic) IBOutlet PPTickerStatisticsManager *statisticsManager;
+
+- (void) setDisplayCount:(NSUInteger)count
+		 secondaryString:(NSString *)secondaryString
+		  secondaryColor:(NSColor *)secondaryColor
+		   secondarySize:(CGFloat)secondarySize;
+
 @end
 
 
 @implementation PPTickerController
--(void)makeRequest;
+
+@synthesize countField = _countField, spinner = _spinner, panel = _panel, statisticsManager = _statisticsManager;
+
+
+-(void)awakeFromNib
 {
-	self.conn = [NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:PPTickerURL]]  delegate:self];
-	[self.conn start];
-	[spinner startAnimation:nil];
+	[self.countField setStringValue:NSLocalizedString(@"Loading...", NULL)];
+	[self.panel setFloatingPanel:YES];
+	[self.panel setHidesOnDeactivate:NO];
 }
 
 
--(void)scheduleRequest;
+#pragma mark Statistics manager delegate
+
+- (void) statisticsManagerUpdated:(PPTickerStatisticsManager *)statsManager
 {
-	[spinner stopAnimation:nil];
-	self.conn = nil;
-	NSTimeInterval delay = fmax(kDesiredInterval - latency, kMinimumInterval);
+	NSString		*string = nil;
+	NSColor			*color = nil;
 	
-	self.timer = [NSTimer scheduledTimerWithTimeInterval:delay
-												  target:self
-												selector:@selector(makeRequest)
-												userInfo:nil
-												 repeats:NO];
-}
-
-
--(void)awakeFromNib;
-{
-	[countField setStringValue:NSLocalizedString(@"Loading...", NULL)];
-	[self makeRequest];
-	[panel setFloatingPanel:YES];
-	[panel setHidesOnDeactivate:NO];
-	statsTracker = [[PPTickerStatsTracker alloc] initWithPreferencesKey:@"statistics"];
-	self.previousTime = [NSDate date];
-	latency = NAN;
-	
-#if DUMP_CSV
-	debugOut = fopen("debug.csv", "w");
-	if (debugOut != NULL)  fputs("Time,Interval (s),Count,Delta,Instantaneous rate/h,Smoothed rate/h\n", debugOut);
-#endif
-}
-
-
-#pragma mark Socket callbacks
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection
-{
-	[self scheduleRequest];
-}
-
-
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
-{
-	[self scheduleRequest];
-	NSLog(@"Connection failed: %@", error);
-}
-
-
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
-{
-	BOOL failed = NO;
-	BOOL firstTime = NO;
-	
-	NSString *newCountString = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
-	NSInteger newCount = [newCountString integerValue];
-	
-	firstTime = isnan(latency);
-	
-	if (newCount <= 0)
+	if (statsManager.hasMeaningfulGrowthRate)
 	{
-		newCount = previousCount;
-		failed = YES;
-	}
-	if(initialValue == 0)
-	{
-		initialValue = newCount;
-	}
-	
-	NSDate *now = [NSDate date];
-	NSString *diffString = nil;
-	
-	/*	Update running latency estimate.
-		This is smoothed (in a simple way) to avoid transient spikes.
-	*/
-	NSTimeInterval deltaT = [now timeIntervalSinceDate:self.previousTime];
-	if (firstTime)  latency = deltaT;
-	else  latency = latency + (deltaT - kDesiredInterval) * (1.0 - kLatencySmooth);
-	
-	if (!failed)
-	{
-		// Update growth rate estimate.
-		[statsTracker addDataPoint:newCount withTimeStamp:now];
-		
-		if (statsTracker.hasMeaningfulGrowthRate)
+		double displayRate = statsManager.growthRate;
+		if (abs(displayRate) < 10)
 		{
-			double displayRate = statsTracker.growthRate;
-			if (abs(displayRate) < 10)
-			{
-				diffString = [NSString stringWithFormat:@"%+.1f/h", displayRate];
-			}
-			else
-			{
-				diffString = [NSString stringWithFormat:@"%+d/h", lround(displayRate)];
-			}
+			string = [NSString stringWithFormat:@"(%+.1f/h)", displayRate];
+		}
+		else
+		{
+			string = [NSString stringWithFormat:@"(%+d/h)", lround(displayRate)];
 		}
 		
-#if DUMP_CSV
-		// Dump CSV for graphing in spreadsheet.
-		if (debugOut != NULL && !firstTime)
+		if (displayRate >= 0)
 		{
-			NSInteger deltaN = newCount - previousCount;
-			double rate = (double)(deltaN * 3600) / deltaT;
-			fprintf(debugOut, "%s,%g,%u,%i,%g,%g\n", [[now description] UTF8String], deltaT, newCount, deltaN, rate, statsTracker.growthRate);
-			fflush(debugOut);
-			NSLog(@"%lu, %+g (dT: %g, latency: %g, latency update: %g)", newCount, statsTracker.growthRate, [now timeIntervalSinceDate:self.previousTime], latency, deltaT - kDesiredInterval);
-			self.previousTime = now;
+			color = [NSColor colorWithCalibratedHue:110.0 / 360.0	// Green
+										 saturation:1.0
+										 brightness:0.7
+											  alpha:1.0];
 		}
-#endif
+		else
+		{
+			color = [NSColor colorWithCalibratedHue:0		// Red
+										 saturation:1.0
+										 brightness:0.9
+											  alpha:1.0];
+		}
 	}
 	
-	previousCount = newCount;
+	[self setDisplayCount:statsManager.memberCount
+		  secondaryString:string
+		   secondaryColor:color
+			secondarySize:[NSFont smallSystemFontSize]];
+}
+
+
+- (void) statisticsManagerUpdateFailed:(PPTickerStatisticsManager *)statsManager
+{
+	NSColor *color = [NSColor colorWithCalibratedHue:45.0 / 360.0	// Orange-yellow
+										  saturation:1.0
+										  brightness:1.0
+											   alpha:1.0];
 	
-	// Build styled string for display.
-	NSString *countString = [NSString stringWithFormat:@"%d", newCount];
-	NSMutableAttributedString *displayString = [[[NSMutableAttributedString alloc] initWithString:countString] autorelease];
-	NSAttributedString *displayDiffString = nil;
+	[self setDisplayCount:statsManager.memberCount
+		  secondaryString:@"?"
+		   secondaryColor:color
+			secondarySize:[NSFont systemFontSize]];
+}
+
+
+- (void) statisticsManagerStartedDownload:(PPTickerStatisticsManager *)statsManager
+{
+	[self.spinner startAnimation:self];
+}
+
+
+- (void) statisticsManagerEndedDownload:(PPTickerStatisticsManager *)statsManager
+{
+	[self.spinner stopAnimation:self];
+}
+
+
+- (void) setDisplayCount:(NSUInteger)count
+		 secondaryString:(NSString *)secondaryString
+		  secondaryColor:(NSColor *)secondaryColor
+		   secondarySize:(CGFloat)secondarySize
+{
+	NSMutableAttributedString *displayString = [[[NSMutableAttributedString alloc] initWithString:PrettyStringWithInteger(count)] autorelease];
 	
-	if (failed)
+	if (secondaryString != nil)
 	{
-		displayDiffString = [[[NSAttributedString alloc] initWithString:@" ?" attributes:[NSDictionary dictionaryWithObject:[NSColor redColor] forKey:NSForegroundColorAttributeName]] autorelease];
-	}
-	else if (diffString.length != 0)
-	{
-		diffString = [NSString stringWithFormat:@"  (%@)", diffString];
+		secondaryString = [@"  " stringByAppendingString:secondaryString];
+		if (secondaryColor == nil)  secondaryColor = [NSColor whiteColor];
 		
-		NSDictionary *diffAttr = [NSDictionary dictionaryWithObjectsAndKeys:
-								  [NSColor colorWithCalibratedRed:0.10 green:0.60 blue:0 alpha:1.0],NSForegroundColorAttributeName,
-								  [NSFont systemFontOfSize:11.0], NSFontAttributeName,
-								  nil];
+		NSDictionary *attrs = [NSDictionary dictionaryWithObjectsAndKeys:
+							  secondaryColor, NSForegroundColorAttributeName,
+							   [NSFont systemFontOfSize:secondarySize], NSFontAttributeName,
+							   nil];
 		
-		displayDiffString = [[[NSAttributedString alloc] initWithString:diffString attributes:diffAttr] autorelease];
+		[displayString appendAttributedString:[[[NSAttributedString alloc] initWithString:secondaryString attributes:attrs] autorelease]];
 	}
 	
-	if (displayDiffString != nil)  [displayString appendAttributedString:displayDiffString];
 	[displayString setAlignment:NSCenterTextAlignment range:NSMakeRange(0, displayString.length)];
-	[countField setObjectValue:displayString];
+	self.countField.objectValue = displayString;
 }
 
-#pragma mark 
-#pragma mark Window delegates
+
+#pragma mark Window delegate
+
 - (void)windowWillClose:(NSNotification *)notification
 {
-	[NSApp terminate:self];
+	if (notification.object == self.panel)
+	{
+		[self.panel orderOut:self];
+		[NSApp terminate:self];
+	}
 }
 
-#pragma mark
-#pragma mark Accessors
-@synthesize conn;
-@synthesize timer;
-@synthesize previousTime;
--(void)setTimer:(NSTimer*)timer_;
-{
-	if(timer == timer_) return;
-	
-	[timer invalidate];
-	[timer release];
-	[timer_ retain];
-	timer = timer_;
-}
 @end
