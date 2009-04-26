@@ -2,3 +2,6 @@
 build
 PPTicker.xcodeproj/*.mode2v3
 PPTicker.xcodeproj/*.pbxuser
+PPTicker-iPhone/PPTicker-iPhone.xcodeproj/*.mode2v3
+PPTicker-iPhone/PPTicker-iPhone.xcodeproj/*.pbxuser
+

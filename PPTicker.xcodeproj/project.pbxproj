@@ -65,8 +65,8 @@
 				1AE280290FA4C76C0072DFAF /* PPTickerStatisticsManager.m */,
 				1A40C6170F9FD1530071CF59 /* PPTickerStatsTracker.h */,
 				1A40C6180F9FD1530071CF59 /* PPTickerStatsTracker.m */,
-				1AE281580FA4E8DA0072DFAF /* PPTickerPrettyNumbers.m */,
 				1AE281590FA4E8DA0072DFAF /* PPTickerPrettyNumbers.h */,
+				1AE281580FA4E8DA0072DFAF /* PPTickerPrettyNumbers.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
