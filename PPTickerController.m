@@ -57,7 +57,7 @@
 			string = [NSString stringWithFormat:@"(%+d/h)", lround(displayRate)];
 		}
 		
-		if (displayRate > 0)
+		if (displayRate >= 0)
 		{
 			color = [NSColor colorWithCalibratedHue:110.0 / 360.0	// Green
 										 saturation:1.0
@@ -90,7 +90,7 @@
 	[self setDisplayCount:statsManager.memberCount
 		  secondaryString:@"?"
 		   secondaryColor:color
-			secondarySize:[NSFont smallSystemFontSize]];
+			secondarySize:[NSFont systemFontSize]];
 }
 
 

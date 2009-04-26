@@ -40,10 +40,21 @@ static NSString *PPTickerURL = @"http://lekstuga.piratpartiet.se/membersfeed";
 }
 
 
+- (void) dealloc
+{
+	self.statsTracker = nil;
+	[self.connection cancel];
+	self.connection = nil;
+	self.timer = nil;
+	self.previousTime = nil;
+	
+	[super dealloc];
+}
+
+
 -(void)makeRequest
 {
 	self.connection = [NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:PPTickerURL]]  delegate:self];
-	[self.connection start];
 	[self statisticsManagerStartedDownload:self];
 }
 
@@ -74,6 +85,7 @@ static NSString *PPTickerURL = @"http://lekstuga.piratpartiet.se/membersfeed";
 {
 	[self scheduleRequest];
 	NSLog(@"Connection failed: %@", error);
+	[self statisticsManagerUpdateFailed:self];
 }
 
 
