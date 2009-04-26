@@ -1,63 +1,65 @@
-//
-//  PPTickerController.m
-//  PPTicker
-//
-//  Created by Joachim Bengtsson on 2009-04-18.
-//  Copyright 2009 Third Cog Software. All rights reserved.
-//
-
-#import "PPTickerController.h"
+#import "PPTickerStatisticsManager.h"
 #import "PPTickerStatsTracker.h"
 
+
 static NSString *PPTickerURL = @"http://lekstuga.piratpartiet.se/membersfeed";
+
 #define kDesiredInterval	15.0
 #define kMinimumInterval	10.0
 #define kLatencySmooth		0.667
 
-@interface PPTickerController ()
-@property (retain, nonatomic) NSURLConnection *conn;
+
+@interface PPTickerStatisticsManager () <PPTickerStatisticsManagerDelegate>
+
+@property (readwrite, nonatomic) NSUInteger memberCount;
+@property (retain, nonatomic) PPTickerStatsTracker *statsTracker;
+@property (retain, nonatomic) NSURLConnection *connection;
 @property (retain, nonatomic) NSTimer *timer;
 @property (retain, nonatomic) NSDate *previousTime;
+@property (nonatomic) NSUInteger initialValue;
+@property (nonatomic) NSTimeInterval latency;
+
+-(void)makeRequest;
+-(void)scheduleRequest;
+
 @end
 
 
-@implementation PPTickerController
--(void)makeRequest;
+@implementation PPTickerStatisticsManager
+
+- (id) init
 {
-	self.conn = [NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:PPTickerURL]]  delegate:self];
-	[self.conn start];
-	[spinner startAnimation:nil];
+	if ((self = [super init]))
+	{
+		[self makeRequest];
+		self.statsTracker = [[[PPTickerStatsTracker alloc] initWithPreferencesKey:@"statistics"] autorelease];
+		self.previousTime = [NSDate date];
+		self.latency = NAN;
+	}
+	return self;
 }
 
 
--(void)scheduleRequest;
+-(void)makeRequest
 {
-	[spinner stopAnimation:nil];
-	self.conn = nil;
-	NSTimeInterval delay = fmax(kDesiredInterval - latency, kMinimumInterval);
+	self.connection = [NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:PPTickerURL]]  delegate:self];
+	[self.connection start];
+	[self statisticsManagerStartedDownload:self];
+}
+
+
+-(void)scheduleRequest
+{
+	[self statisticsManagerEndedDownload:self];
+	self.connection = nil;
+	
+	NSTimeInterval delay = fmax(kDesiredInterval - self.latency, kMinimumInterval);
 	
 	self.timer = [NSTimer scheduledTimerWithTimeInterval:delay
 												  target:self
 												selector:@selector(makeRequest)
 												userInfo:nil
 												 repeats:NO];
-}
-
-
--(void)awakeFromNib;
-{
-	[countField setStringValue:NSLocalizedString(@"Loading...", NULL)];
-	[self makeRequest];
-	[panel setFloatingPanel:YES];
-	[panel setHidesOnDeactivate:NO];
-	statsTracker = [[PPTickerStatsTracker alloc] initWithPreferencesKey:@"statistics"];
-	self.previousTime = [NSDate date];
-	latency = NAN;
-	
-#if DUMP_CSV
-	debugOut = fopen("debug.csv", "w");
-	if (debugOut != NULL)  fputs("Time,Interval (s),Count,Delta,Instantaneous rate/h,Smoothed rate/h\n", debugOut);
-#endif
 }
 
 
@@ -77,113 +79,107 @@ static NSString *PPTickerURL = @"http://lekstuga.piratpartiet.se/membersfeed";
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-	BOOL failed = NO;
-	BOOL firstTime = NO;
-	
 	NSString *newCountString = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 	NSInteger newCount = [newCountString integerValue];
-	
-	firstTime = isnan(latency);
-	
-	if (newCount <= 0)
-	{
-		newCount = previousCount;
-		failed = YES;
-	}
-	if(initialValue == 0)
-	{
-		initialValue = newCount;
-	}
-	
 	NSDate *now = [NSDate date];
-	NSString *diffString = nil;
 	
 	/*	Update running latency estimate.
 		This is smoothed (in a simple way) to avoid transient spikes.
 	*/
+	BOOL firstTime = isnan(self.latency);
+	
 	NSTimeInterval deltaT = [now timeIntervalSinceDate:self.previousTime];
-	if (firstTime)  latency = deltaT;
-	else  latency = latency + (deltaT - kDesiredInterval) * (1.0 - kLatencySmooth);
+	if (firstTime)  self.latency = deltaT;
+	else  self.latency += (deltaT - kDesiredInterval) * (1.0 - kLatencySmooth);
 	
-	if (!failed)
+	if (newCount <= 0)
 	{
-		// Update growth rate estimate.
-		[statsTracker addDataPoint:newCount withTimeStamp:now];
-		
-		if (statsTracker.hasMeaningfulGrowthRate)
-		{
-			double displayRate = statsTracker.growthRate;
-			if (abs(displayRate) < 10)
-			{
-				diffString = [NSString stringWithFormat:@"%+.1f/h", displayRate];
-			}
-			else
-			{
-				diffString = [NSString stringWithFormat:@"%+d/h", lround(displayRate)];
-			}
-		}
-		
-#if DUMP_CSV
-		// Dump CSV for graphing in spreadsheet.
-		if (debugOut != NULL && !firstTime)
-		{
-			NSInteger deltaN = newCount - previousCount;
-			double rate = (double)(deltaN * 3600) / deltaT;
-			fprintf(debugOut, "%s,%g,%u,%i,%g,%g\n", [[now description] UTF8String], deltaT, newCount, deltaN, rate, statsTracker.growthRate);
-			fflush(debugOut);
-			NSLog(@"%lu, %+g (dT: %g, latency: %g, latency update: %g)", newCount, statsTracker.growthRate, [now timeIntervalSinceDate:self.previousTime], latency, deltaT - kDesiredInterval);
-			self.previousTime = now;
-		}
-#endif
+		[self statisticsManagerUpdateFailed:self];
+		return;
 	}
 	
-	previousCount = newCount;
+	if (self.initialValue == 0)  self.initialValue = newCount;
 	
-	// Build styled string for display.
-	NSString *countString = [NSString stringWithFormat:@"%d", newCount];
-	NSMutableAttributedString *displayString = [[[NSMutableAttributedString alloc] initWithString:countString] autorelease];
-	NSAttributedString *displayDiffString = nil;
+	// Update growth rate estimate.
+	[self.statsTracker addDataPoint:newCount withTimeStamp:now];
 	
-	if (failed)
-	{
-		displayDiffString = [[[NSAttributedString alloc] initWithString:@" ?" attributes:[NSDictionary dictionaryWithObject:[NSColor redColor] forKey:NSForegroundColorAttributeName]] autorelease];
-	}
-	else if (diffString.length != 0)
-	{
-		diffString = [NSString stringWithFormat:@"  (%@)", diffString];
-		
-		NSDictionary *diffAttr = [NSDictionary dictionaryWithObjectsAndKeys:
-								  [NSColor colorWithCalibratedRed:0.10 green:0.60 blue:0 alpha:1.0],NSForegroundColorAttributeName,
-								  [NSFont systemFontOfSize:11.0], NSFontAttributeName,
-								  nil];
-		
-		displayDiffString = [[[NSAttributedString alloc] initWithString:diffString attributes:diffAttr] autorelease];
-	}
-	
-	if (displayDiffString != nil)  [displayString appendAttributedString:displayDiffString];
-	[displayString setAlignment:NSCenterTextAlignment range:NSMakeRange(0, displayString.length)];
-	[countField setObjectValue:displayString];
+	self.memberCount = newCount;
+	[self statisticsManagerUpdated:self];
 }
 
-#pragma mark 
-#pragma mark Window delegates
-- (void)windowWillClose:(NSNotification *)notification
+
+#pragma mark
+#pragma mark Delegate handling
+
+- (void) statisticsManagerUpdated:(PPTickerStatisticsManager *)statsManager
 {
-	[NSApp terminate:self];
+	if ([self.delegate respondsToSelector:@selector(statisticsManagerUpdated:)] && self.delegate != self)
+	{
+		[self.delegate statisticsManagerUpdated:self];
+	}
 }
+
+
+- (void) statisticsManagerUpdateFailed:(PPTickerStatisticsManager *)statsManager
+{
+	if ([self.delegate respondsToSelector:@selector(statisticsManagerUpdated:)] && self.delegate != self)
+	{
+		[self.delegate statisticsManagerUpdateFailed:self];
+	}
+}
+
+
+- (void) statisticsManagerStartedDownload:(PPTickerStatisticsManager *)statsManager
+{
+	if ([self.delegate respondsToSelector:@selector(statisticsManagerStartedDownload:)] && self.delegate != self)
+	{
+		[self.delegate statisticsManagerStartedDownload:self];
+	}
+}
+
+
+- (void) statisticsManagerEndedDownload:(PPTickerStatisticsManager *)statsManager
+{
+	if ([self.delegate respondsToSelector:@selector(statisticsManagerEndedDownload:)] && self.delegate != self)
+	{
+		[self.delegate statisticsManagerEndedDownload:self];
+	}
+}
+
 
 #pragma mark
 #pragma mark Accessors
-@synthesize conn;
-@synthesize timer;
-@synthesize previousTime;
--(void)setTimer:(NSTimer*)timer_;
+
+@synthesize delegate = _delegate;
+@synthesize memberCount = _memberCount;
+@synthesize statsTracker = _statsTracker;
+@synthesize connection = _connection;
+@synthesize timer = _timer;
+@synthesize previousTime = _previousTime;
+@synthesize initialValue = _initialValue;
+@synthesize latency = _latency;
+
+
+-(void)setTimer:(NSTimer*)timer;
 {
-	if(timer == timer_) return;
+	if(_timer == timer) return;
 	
-	[timer invalidate];
-	[timer release];
-	[timer_ retain];
-	timer = timer_;
+	[_timer invalidate];
+	[_timer release];
+	[timer retain];
+	_timer = timer;
 }
+
+
+- (double) growthRate
+{
+	return self.statsTracker.growthRate;
+}
+
+
+- (BOOL) hasMeaningfulGrowthRate
+{
+	return self.statsTracker.hasMeaningfulGrowthRate;
+}
+
 @end

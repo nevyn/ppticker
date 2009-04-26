@@ -12,6 +12,7 @@
 		1A40C6190F9FD1530071CF59 /* PPTickerStatsTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A40C6180F9FD1530071CF59 /* PPTickerStatsTracker.m */; };
 		1A669E7F0F9B76EC00115500 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A669E7E0F9B76EC00115500 /* MainMenu.xib */; };
 		1A669E820F9B770800115500 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1A669E800F9B770800115500 /* Localizable.strings */; };
+		1AE2802A0FA4C76C0072DFAF /* PPTickerStatisticsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE280290FA4C76C0072DFAF /* PPTickerStatisticsManager.m */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -30,6 +31,8 @@
 		1A669E810F9B770800115500 /* Swedish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Swedish; path = Swedish.lproj/Localizable.strings; sourceTree = "<group>"; };
 		1A669E830F9B770E00115500 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
 		1A669E840F9B771300115500 /* Swedish */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Swedish; path = Swedish.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1AE280280FA4C76C0072DFAF /* PPTickerStatisticsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PPTickerStatisticsManager.h; sourceTree = "<group>"; };
+		1AE280290FA4C76C0072DFAF /* PPTickerStatisticsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PPTickerStatisticsManager.m; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
@@ -55,6 +58,8 @@
 			children = (
 				054831C80F9A4E63001AE1DA /* PPTickerController.h */,
 				054831C90F9A4E63001AE1DA /* PPTickerController.m */,
+				1AE280280FA4C76C0072DFAF /* PPTickerStatisticsManager.h */,
+				1AE280290FA4C76C0072DFAF /* PPTickerStatisticsManager.m */,
 				1A40C6170F9FD1530071CF59 /* PPTickerStatsTracker.h */,
 				1A40C6180F9FD1530071CF59 /* PPTickerStatsTracker.m */,
 			);
@@ -196,6 +201,7 @@
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
 				054831CA0F9A4E63001AE1DA /* PPTickerController.m in Sources */,
 				1A40C6190F9FD1530071CF59 /* PPTickerStatsTracker.m in Sources */,
+				1AE2802A0FA4C76C0072DFAF /* PPTickerStatisticsManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

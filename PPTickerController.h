@@ -1,34 +1,26 @@
-//
-//  PPTickerController.h
-//  PPTicker
-//
-//  Created by Joachim Bengtsson on 2009-04-18.
-//  Copyright 2009 Third Cog Software. All rights reserved.
-//
-
 #import <Cocoa/Cocoa.h>
+#import "PPTickerStatisticsManager.h"
 
 #define	DUMP_CSV	0
 
-@class PPTickerStatsTracker;
 
-
-@interface PPTickerController: NSObject
+@interface PPTickerController: NSObject <PPTickerStatisticsManagerDelegate>
 {
-	IBOutlet NSTextField *countField;
-	PPTickerStatsTracker *statsTracker;
-	NSInteger initialValue;
-	NSURLConnection *conn;
-	NSTimer *timer;
-	IBOutlet NSProgressIndicator *spinner;
-	IBOutlet NSPanel *panel;
-	NSTimeInterval latency;
-	NSDate *previousTime;
-	NSInteger previousCount;
+#if !__OBJC2__
+	NSTextField					*_countField;
+	NSProgressIndicator			*_spinner;
+	NSPanel						*_panel;
+	PPTickerStatisticsManager	*_statisticsManager;
 	
 #if DUMP_CSV
-	FILE *debugOut;
+	FILE						*_debugOut;
+#endif
 #endif
 }
+
+@property (readonly, retain, nonatomic) IBOutlet NSTextField *countField;
+@property (readonly, retain, nonatomic) IBOutlet NSProgressIndicator *spinner;
+@property (readonly, retain, nonatomic) IBOutlet NSPanel *panel;
+@property (readonly, retain, nonatomic) IBOutlet PPTickerStatisticsManager *statisticsManager;
 
 @end

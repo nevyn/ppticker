@@ -1,34 +1,44 @@
-//
-//  PPTickerController.h
-//  PPTicker
-//
-//  Created by Joachim Bengtsson on 2009-04-18.
-//  Copyright 2009 Third Cog Software. All rights reserved.
-//
-
-#import <Cocoa/Cocoa.h>
-
-#define	DUMP_CSV	0
+#import <Foundation/Foundation.h>
 
 @class PPTickerStatsTracker;
+@protocol PPTickerStatisticsManagerDelegate;
 
 
-@interface PPTickerController: NSObject
+
+@interface PPTickerStatisticsManager: NSObject
 {
-	IBOutlet NSTextField *countField;
-	PPTickerStatsTracker *statsTracker;
-	NSInteger initialValue;
-	NSURLConnection *conn;
-	NSTimer *timer;
-	IBOutlet NSProgressIndicator *spinner;
-	IBOutlet NSPanel *panel;
-	NSTimeInterval latency;
-	NSDate *previousTime;
-	NSInteger previousCount;
+@private
+#if !__OBJC2__
+	id <PPTickerStatisticsManagerDelegate> _delegate;
 	
-#if DUMP_CSV
-	FILE *debugOut;
+	NSUInteger					_memberCount;
+	NSUInteger					_growthRate;
+	
+	PPTickerStatsTracker		*_statsTracker;
+	NSURLConnection				*_connection;
+	NSDate						*_previousTime;
+	NSUInteger					_initialValue;
+	NSTimeInterval				_latency;
 #endif
+	NSTimer						*_timer;
 }
+
+@property (nonatomic, assign) IBOutlet id <PPTickerStatisticsManagerDelegate> delegate;
+
+@property (readonly, nonatomic) NSUInteger memberCount;
+@property (readonly, nonatomic) double growthRate;
+@property (readonly, nonatomic) BOOL hasMeaningfulGrowthRate;
+
+@end
+
+
+@protocol PPTickerStatisticsManagerDelegate <NSObject>
+@optional
+
+- (void) statisticsManagerUpdated:(PPTickerStatisticsManager *)statsManager;
+- (void) statisticsManagerUpdateFailed:(PPTickerStatisticsManager *)statsManager;
+
+- (void) statisticsManagerStartedDownload:(PPTickerStatisticsManager *)statsManager;
+- (void) statisticsManagerEndedDownload:(PPTickerStatisticsManager *)statsManager;
 
 @end
