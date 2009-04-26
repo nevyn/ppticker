@@ -1,4 +1,4 @@
 .DS_Store
-PPTicker.xcodeproj
 build
-
+PPTicker.xcodeproj/*.mode2v3
+PPTicker.xcodeproj/*.pbxuser
