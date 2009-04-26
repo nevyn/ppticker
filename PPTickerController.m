@@ -1,4 +1,5 @@
 #import "PPTickerController.h"
+#import "PPTickerPrettyNumbers.h"
 
 
 @interface PPTickerController ()
@@ -111,7 +112,7 @@
 		  secondaryColor:(NSColor *)secondaryColor
 		   secondarySize:(CGFloat)secondarySize
 {
-	NSMutableAttributedString *displayString = [[[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%ld", (long)count]] autorelease];
+	NSMutableAttributedString *displayString = [[[NSMutableAttributedString alloc] initWithString:PrettyStringWithInteger(count)] autorelease];
 	
 	if (secondaryString != nil)
 	{

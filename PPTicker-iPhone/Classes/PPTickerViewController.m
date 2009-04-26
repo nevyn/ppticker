@@ -1,4 +1,5 @@
 #import "PPTickerViewController.h"
+#import "PPTickerPrettyNumbers.h"
 
 
 @interface PPTickerViewController ()
@@ -46,7 +47,7 @@
 
 - (void) viewDidLoad
 {
-	[self.spinner startAnimating];
+	[self statisticsManagerStartedDownload:self.statisticsManager];
 }
 
 
@@ -62,11 +63,11 @@
 		double displayRate = statsManager.growthRate;
 		if (abs(displayRate) < 10)
 		{
-			string = [NSString stringWithFormat:@"%+.1f/h", displayRate];
+			string = [NSString stringWithFormat:@"%+.1f/timme", displayRate];
 		}
 		else
 		{
-			string = [NSString stringWithFormat:@"%+d/h", lround(displayRate)];
+			string = [NSString stringWithFormat:@"%+d/timme", lround(displayRate)];
 		}
 		
 		if (displayRate >= 0)
@@ -111,12 +112,14 @@
 - (void) statisticsManagerStartedDownload:(PPTickerStatisticsManager *)statsManager
 {
 	[self.spinner startAnimating];
+	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 }
 
 
 - (void) statisticsManagerEndedDownload:(PPTickerStatisticsManager *)statsManager
 {
 	[self.spinner stopAnimating];
+	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 }
 
 
@@ -124,7 +127,7 @@
 		 secondaryString:(NSString *)secondaryString
 		  secondaryColor:(UIColor *)secondaryColor
 {
-	NSString *countString = [NSString stringWithFormat:@"%ld", (long)count];
+	NSString *countString = PrettyStringWithInteger(count);
 	self.countField.text = countString;
 	self.rateField.text = secondaryString ?: @"";
 	self.rateField.textColor = secondaryColor ?: [UIColor blackColor];

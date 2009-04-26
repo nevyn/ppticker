@@ -39,15 +39,15 @@
 					<object class="IBUILabel" id="206631700">
 						<reference key="NSNextResponder" ref="774585933"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{20, 212}, {280, 43}}</string>
+						<string key="NSFrame">{{20, 212}, {280, 57}}</string>
 						<reference key="NSSuperview" ref="774585933"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
-						<string type="base64-UTF8" key="IBUIText">4oCUA</string>
+						<string type="base64-UTF8" key="IBUIText">4oCTA</string>
 						<object class="NSFont" key="IBUIFont">
 							<string key="NSName">Helvetica</string>
-							<double key="NSSize">3.600000e+01</double>
+							<double key="NSSize">4.800000e+01</double>
 							<int key="NSfFlags">16</int>
 						</object>
 						<object class="NSColor" key="IBUITextColor" id="12588012">
@@ -68,12 +68,17 @@
 					<object class="IBUILabel" id="594397529">
 						<reference key="NSNextResponder" ref="774585933"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{20, 276}, {280, 21}}</string>
+						<string key="NSFrame">{{20, 296}, {280, 21}}</string>
 						<reference key="NSSuperview" ref="774585933"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
 						<string key="IBUIText"/>
+						<object class="NSFont" key="IBUIFont">
+							<string key="NSName">Helvetica</string>
+							<double key="NSSize">2.400000e+01</double>
+							<int key="NSfFlags">16</int>
+						</object>
 						<reference key="IBUITextColor" ref="12588012"/>
 						<nil key="IBUIHighlightedColor"/>
 						<int key="IBUIBaselineAdjustment">1</int>
@@ -83,7 +88,7 @@
 					<object class="IBUIActivityIndicatorView" id="848743457">
 						<reference key="NSNextResponder" ref="774585933"/>
 						<int key="NSvFlags">-2147483356</int>
-						<string key="NSFrame">{{141, 314}, {37, 37}}</string>
+						<string key="NSFrame">{{141, 340}, {37, 37}}</string>
 						<reference key="NSSuperview" ref="774585933"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
@@ -216,9 +221,9 @@
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="206631700"/>
-							<reference ref="594397529"/>
 							<reference ref="1229401"/>
 							<reference ref="639171505"/>
+							<reference ref="594397529"/>
 							<reference ref="848743457"/>
 						</object>
 						<reference key="parent" ref="360949347"/>

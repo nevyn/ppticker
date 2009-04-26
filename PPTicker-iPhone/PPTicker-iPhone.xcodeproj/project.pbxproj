@@ -12,6 +12,7 @@
 		1AE280C20FA4D9860072DFAF /* logo-black-128.png in Resources */ = {isa = PBXBuildFile; fileRef = 1AE280C10FA4D9860072DFAF /* logo-black-128.png */; };
 		1AE280CB0FA4DB960072DFAF /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 1AE280CA0FA4DB960072DFAF /* Default.png */; };
 		1AE280CD0FA4DBEB0072DFAF /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 1AE280CC0FA4DBEB0072DFAF /* Icon.png */; };
+		1AE2817F0FA4E9F80072DFAF /* PPTickerPrettyNumbers.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE2817D0FA4E9F80072DFAF /* PPTickerPrettyNumbers.m */; };
 		1D3623260D0F684500981E51 /* PPTickerAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* PPTickerAppDelegate.m */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
@@ -30,6 +31,8 @@
 		1AE280C10FA4D9860072DFAF /* logo-black-128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-black-128.png"; sourceTree = "<group>"; };
 		1AE280CA0FA4DB960072DFAF /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		1AE280CC0FA4DBEB0072DFAF /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		1AE2817D0FA4E9F80072DFAF /* PPTickerPrettyNumbers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PPTickerPrettyNumbers.m; path = ../PPTickerPrettyNumbers.m; sourceTree = SOURCE_ROOT; };
+		1AE2817E0FA4E9F80072DFAF /* PPTickerPrettyNumbers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PPTickerPrettyNumbers.h; path = ../PPTickerPrettyNumbers.h; sourceTree = SOURCE_ROOT; };
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D3623240D0F684500981E51 /* PPTickerAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PPTickerAppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* PPTickerAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PPTickerAppDelegate.m; sourceTree = "<group>"; };
@@ -86,6 +89,8 @@
 				1AE280780FA4D3730072DFAF /* PPTickerStatisticsManager.m */,
 				1AE280770FA4D3730072DFAF /* PPTickerStatsTracker.h */,
 				1AE280760FA4D3730072DFAF /* PPTickerStatsTracker.m */,
+				1AE2817E0FA4E9F80072DFAF /* PPTickerPrettyNumbers.h */,
+				1AE2817D0FA4E9F80072DFAF /* PPTickerPrettyNumbers.m */,
 			);
 			name = "Cross-platform";
 			sourceTree = "<group>";
@@ -196,6 +201,7 @@
 				28D7ACF80DDB3853001CB0EB /* PPTickerViewController.m in Sources */,
 				1AE2807A0FA4D3730072DFAF /* PPTickerStatsTracker.m in Sources */,
 				1AE2807B0FA4D3730072DFAF /* PPTickerStatisticsManager.m in Sources */,
+				1AE2817F0FA4E9F80072DFAF /* PPTickerPrettyNumbers.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,7 +212,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jens Ayton";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -222,7 +229,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jens Ayton";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = PPTicker_iPhone_Prefix.pch;
@@ -236,6 +244,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -250,6 +259,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
